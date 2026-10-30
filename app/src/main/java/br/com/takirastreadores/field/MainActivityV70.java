@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.view.*;
 import android.widget.*;
+import org.json.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -59,7 +60,24 @@ public class MainActivityV70 extends MainActivityV611 {
     void saveClientDirect(String name,String value){
         try{JSONArray a=new JSONArray(prefs.getString("gps_destinations_v6","[]"));JSONObject o=new JSONObject();o.put("name",name);o.put("value",value);a.put(o);prefs.edit().putString("gps_destinations_v6",a.toString()).apply();Toast.makeText(this,"Cliente salvo",Toast.LENGTH_SHORT).show();}catch(Exception e){Toast.makeText(this,"Não foi possível salvar",Toast.LENGTH_SHORT).show();}
     }
-    void confirmDeleteClient(Destination d){new AlertDialog.Builder(this).setTitle("Excluir cliente?").setMessage(d.name+"\n"+d.value).setNegativeButton("Cancelar",null).setPositiveButton("EXCLUIR",(x,w)->{removeDestination(d);clientsScreen();}).show();}
+
+    void removeClientDirect(Destination d){
+        try{
+            JSONArray source=new JSONArray(prefs.getString("gps_destinations_v6","[]"));
+            JSONArray kept=new JSONArray();
+            for(int i=0;i<source.length();i++){
+                JSONObject o=source.optJSONObject(i);
+                if(o==null)continue;
+                boolean same=Objects.equals(o.optString("name",""),d.name)&&Objects.equals(o.optString("value",""),d.value);
+                if(!same)kept.put(o);
+            }
+            Set<String> favs=new HashSet<>(prefs.getStringSet("gps_favorites_v61",Collections.emptySet()));
+            favs.remove(favKey(d));
+            prefs.edit().putString("gps_destinations_v6",kept.toString()).putStringSet("gps_favorites_v61",favs).apply();
+            Toast.makeText(this,"Cliente excluído",Toast.LENGTH_SHORT).show();
+        }catch(Exception e){Toast.makeText(this,"Não foi possível excluir",Toast.LENGTH_SHORT).show();}
+    }
+    void confirmDeleteClient(Destination d){new AlertDialog.Builder(this).setTitle("Excluir cliente?").setMessage(d.name+"\n"+d.value).setNegativeButton("Cancelar",null).setPositiveButton("EXCLUIR",(x,w)->{removeClientDirect(d);clientsScreen();}).show();}
 
     @Override void settingsScreen(){
         super.settingsScreen();
