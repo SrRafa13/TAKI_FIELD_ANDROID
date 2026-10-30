@@ -113,7 +113,9 @@ public class MainActivityV30 extends MainActivityV21 {
     void parserScreen(){
         backHeader("INTERPRETAR RESPOSTA","Cole a resposta recebida do rastreador. A leitura é heurística e deve ser conferida com o manual.");
         EditText e=input("Cole a resposta aqui");e.setSingleLine(false);e.setMinLines(6);e.setGravity(Gravity.TOP);e.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_MULTI_LINE);list.addView(e,mb(10));
-        TextView out=txt("",13,WHITE,false);list.addView(button("INTERPRETAR",true,v->out.setText(interpret(e.getText().toString())) ,new LinearLayout.LayoutParams(-1,dp(48)));list.addView(out,mt(10));
+        TextView out=txt("",13,WHITE,false);
+        list.addView(button("INTERPRETAR",true,v->out.setText(interpret(e.getText().toString()))),new LinearLayout.LayoutParams(-1,dp(48)));
+        list.addView(out,mt(10));
     }
     String interpret(String raw){if(raw.trim().isEmpty())return "Cole uma resposta primeiro.";String x=raw.toUpperCase(Locale.ROOT);StringBuilder o=new StringBuilder("LEITURA RÁPIDA\n\n");Matcher m=Pattern.compile("(?:CSQ|RSSI)[:=, ]+(\\d+)").matcher(x);if(m.find()){int n=Integer.parseInt(m.group(1));o.append("Rede/sinal: ").append(n>=20?"boa":"atenção").append(" (").append(n).append(")\n");}if(x.contains("GPS:1")||x.contains("GPS=1")||x.contains("FIX:1"))o.append("GPS: posição/fix indicado como ativo\n");if(x.contains("GPS:0")||x.contains("GPS=0")||x.contains("FIX:0"))o.append("GPS: sem fix indicado\n");if(x.contains("ACC:1")||x.contains("IGN:1")||x.contains("IGNITION:1"))o.append("Ignição: ON\n");if(x.contains("ACC:0")||x.contains("IGN:0")||x.contains("IGNITION:0"))o.append("Ignição: OFF\n");if(x.contains("ICCID"))o.append("ICCID: presente na resposta\n");if(x.contains("IMEI"))o.append("IMEI: presente na resposta\n");o.append("\nResposta original:\n").append(raw);return o.toString();}
 
