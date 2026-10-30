@@ -1,0 +1,46 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="TAKI FIELD"
+        android:roundIcon="@drawable/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivityV70"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".MainActivityV611" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".MainActivityV61" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".MainActivityV60" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".InstallationActivityV70" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".InstallationActivityV61" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".InstallationActivityV60" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".InstallationActivity" android:exported="false" android:screenOrientation="portrait" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>
