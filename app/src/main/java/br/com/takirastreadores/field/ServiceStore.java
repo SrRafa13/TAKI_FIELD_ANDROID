@@ -23,6 +23,9 @@ final class ServiceStore {
         String technician = "";
         String finishedAt = "";
         String batchId = "";
+        String reportFile = "";
+        String reportType = "";
+        int reportCount = 0;
         long epoch = 0L;
 
         JSONObject toJson() {
@@ -35,6 +38,9 @@ final class ServiceStore {
                 o.put("technician", technician);
                 o.put("finishedAt", finishedAt);
                 o.put("batchId", batchId);
+                o.put("reportFile", reportFile);
+                o.put("reportType", reportType);
+                o.put("reportCount", reportCount);
                 o.put("epoch", epoch);
             } catch (Exception ignored) {}
             return o;
@@ -49,6 +55,9 @@ final class ServiceStore {
             e.technician = o.optString("technician", "");
             e.finishedAt = o.optString("finishedAt", "");
             e.batchId = o.optString("batchId", "");
+            e.reportFile = o.optString("reportFile", "");
+            e.reportType = o.optString("reportType", e.batchId.isEmpty() ? "individual" : "batch");
+            e.reportCount = o.optInt("reportCount", e.batchId.isEmpty() ? 1 : 0);
             e.epoch = o.optLong("epoch", 0L);
             return e;
         }
@@ -87,7 +96,17 @@ final class ServiceStore {
     static synchronized void add(Context c, Entry incoming) {
         ArrayList<Entry> entries = list(c);
         String key = incoming.key();
-        for (Entry e : entries) if (e.key().equals(key)) return;
+        for (Entry e : entries) {
+            if (e.key().equals(key)) {
+                if (!incoming.reportFile.isEmpty() && e.reportFile.isEmpty()) {
+                    e.reportFile = incoming.reportFile;
+                    e.reportType = incoming.reportType;
+                    e.reportCount = incoming.reportCount;
+                    write(c, entries);
+                }
+                return;
+            }
+        }
         entries.add(0, incoming);
         if (entries.size() > 1500) entries = new ArrayList<>(entries.subList(0, 1500));
         write(c, entries);
@@ -95,6 +114,12 @@ final class ServiceStore {
 
     static synchronized void add(Context c, String plate, String service, String brand, String module,
                                  String technician, String finishedAt, long epoch, String batchId) {
+        add(c, plate, service, brand, module, technician, finishedAt, epoch, batchId, "", batchId == null || batchId.isEmpty() ? "individual" : "batch", batchId == null || batchId.isEmpty() ? 1 : 0);
+    }
+
+    static synchronized void add(Context c, String plate, String service, String brand, String module,
+                                 String technician, String finishedAt, long epoch, String batchId,
+                                 String reportFile, String reportType, int reportCount) {
         Entry e = new Entry();
         e.plate = plate == null ? "" : plate;
         e.service = service == null ? "" : service;
@@ -104,6 +129,9 @@ final class ServiceStore {
         e.finishedAt = finishedAt == null ? "" : finishedAt;
         e.epoch = epoch;
         e.batchId = batchId == null ? "" : batchId;
+        e.reportFile = reportFile == null ? "" : reportFile;
+        e.reportType = reportType == null ? "" : reportType;
+        e.reportCount = Math.max(0, reportCount);
         add(c, e);
     }
 
@@ -123,7 +151,7 @@ final class ServiceStore {
     static synchronized void write(Context c, ArrayList<Entry> entries) {
         try {
             JSONObject root = new JSONObject();
-            root.put("version", 1);
+            root.put("version", 2);
             JSONArray arr = new JSONArray();
             for (Entry e : entries) arr.put(e.toJson());
             root.put("entries", arr);
@@ -133,7 +161,12 @@ final class ServiceStore {
                 out.write(root.toString().getBytes("UTF-8"));
             }
             if (target.exists()) target.delete();
-            tmp.renameTo(target);
+            if (!tmp.renameTo(target)) {
+                try (FileOutputStream out = new FileOutputStream(target)) {
+                    out.write(root.toString().getBytes("UTF-8"));
+                }
+                tmp.delete();
+            }
         } catch (Exception ignored) {}
     }
 
