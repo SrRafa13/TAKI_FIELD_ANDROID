@@ -10,7 +10,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivityV61"
+            android:name=".MainActivityV611"
             android:exported="true"
             android:launchMode="singleTop"
             android:screenOrientation="portrait">
@@ -25,6 +25,7 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".MainActivityV61" android:exported="false" android:screenOrientation="portrait" />
         <activity android:name=".MainActivityV60" android:exported="false" android:screenOrientation="portrait" />
         <activity android:name=".InstallationActivityV61" android:exported="false" android:screenOrientation="portrait" />
         <activity android:name=".InstallationActivityV60" android:exported="false" android:screenOrientation="portrait" />
