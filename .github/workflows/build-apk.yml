@@ -2,8 +2,6 @@ name: Build TAKI FIELD APK
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -36,11 +34,11 @@ jobs:
         run: gradle assembleDebug --stacktrace
 
       - name: Prepare APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk TAKI_FIELD_v2.0.0.apk
+        run: cp app/build/outputs/apk/debug/app-debug.apk TAKI_FIELD_v2.1.0.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: TAKI-FIELD-APK
-          path: TAKI_FIELD_v2.0.0.apk
+          name: TAKI-FIELD-APK-v2.1.0
+          path: TAKI_FIELD_v2.1.0.apk
           retention-days: 30
