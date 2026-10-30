@@ -8,7 +8,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivityV30"
+            android:name=".MainActivityV50"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
